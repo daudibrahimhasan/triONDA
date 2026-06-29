@@ -82,6 +82,8 @@ body {
 @keyframes fadein { to { opacity: 1; } }
 
 .hero-inner { position: relative; z-index: 1; }
+.hero-logo { display: block; height: 58px; width: auto; margin: 0 auto 14px; }
+.home-main .hero-logo { height: 50px; margin-bottom: 10px; }
 .wordmark { font-family: var(--display); font-size: clamp(46px, 9vw, 78px); font-weight: 600; line-height: 0.95; letter-spacing: -0.035em; margin: 0; color: var(--touchline); }
 .wordmark .year { color: var(--violet); }
 .kicker { font-family: var(--display); font-weight: 500; font-size: 15px; color: var(--sage); margin: 12px 0 0; letter-spacing: 0.01em; }

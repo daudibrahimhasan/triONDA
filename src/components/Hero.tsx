@@ -18,7 +18,6 @@ export default function Hero({ meta, koCorrect = 0, koTotal = 0 }: Props) {
   return (
     <header className="hero">
       <div className="hero-inner">
-        <img className="hero-logo" src={`${import.meta.env.BASE_URL}logo.png`} alt="FIFA World Cup 26" />
         <p className="eyebrow">Model · Blind · Point-in-time</p>
         <h1 className="wordmark">
           TRI<span className="year">ONDA</span>
