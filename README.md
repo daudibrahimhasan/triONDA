@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="./docs/trionda.png" alt="TRIONDA" width="420" />
+<img src="./docs/newlogo.png" alt="TRIONDA" width="420" />
 
 ### Machine-Learning Match Predictor for the 2026 FIFA World Cup
 
