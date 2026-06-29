@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="./docs/trionda-1.png" alt="TRIONDA" width="420" />
+<img src="./docs/trionda.png" alt="TRIONDA" width="420" />
 
 # TRIONDA
 
