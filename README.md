@@ -2,8 +2,6 @@
 
 <img src="./docs/trionda.png" alt="TRIONDA" width="420" />
 
-# triONDA
-
 ### Machine-Learning Match Predictor for the 2026 FIFA World Cup
 
 A full-stack prediction engine — from raw data to a polished interactive UI —
