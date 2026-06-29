@@ -29,7 +29,7 @@ for every match of the 2026 FIFA World Cup.
 
 <div align="center">
 
-<img src="./docs/screenshot.png" alt="TRIONDA frontend screenshot" width="900" />
+<img src="./docs/Screenshot.png" alt="TRIONDA frontend screenshot" width="900" />
 
 </div>
 
