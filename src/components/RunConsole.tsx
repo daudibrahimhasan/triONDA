@@ -24,6 +24,7 @@ export default function RunConsole({ home, away, matches, onDone }: Props) {
 
   useEffect(() => {
     let i = 0;
+    let doneTimer = 0;
     const id = window.setInterval(() => {
       i += 1;
       setShown(i);
@@ -31,11 +32,14 @@ export default function RunConsole({ home, away, matches, onDone }: Props) {
         window.clearInterval(id);
         if (!done.current) {
           done.current = true;
-          window.setTimeout(onDone, 650);
+          doneTimer = window.setTimeout(onDone, 650);
         }
       }
     }, 480);
-    return () => window.clearInterval(id);
+    return () => {
+      window.clearInterval(id);
+      window.clearTimeout(doneTimer);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

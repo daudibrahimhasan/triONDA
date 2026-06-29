@@ -76,7 +76,7 @@ export default function Awards({ sims }: { sims?: Sim[] }) {
 
         <div className="award-grid">
           {AWARDS.map((a) => {
-            const top = has ? topThree(sims!, a) : [];
+            const top = has ? topThree(runs, a) : [];
             return (
               <div className="award-card" style={{ borderTopColor: a.color } as React.CSSProperties} key={a.name}>
                 <div className="award-card-head">

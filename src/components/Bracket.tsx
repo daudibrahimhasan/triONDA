@@ -40,6 +40,108 @@ const PREV_ROUND_LABEL: Record<number, string> = {
   2: "Round of 32", 3: "Round of 16", 4: "Quarter-finals", 5: "Semi-finals",
 };
 
+// Shared state passed to the (module-scope) Slot/Col so their function identity
+// stays stable — otherwise defining them inside Bracket's render remounts the
+// whole bracket on every tap (restarting animations, dropping keyboard focus).
+interface SlotCtx {
+  byNo: Record<number, BracketRow>;
+  activeNo: number | null;
+  revealed: Set<number>;
+  openNo: number | null;
+  view: "predicted" | "real";
+  reveal: (n: number) => void;
+  twoScores: (m: BracketRow) => string;
+}
+
+function Slot({ no, ctx }: { no: number; ctx: SlotCtx }) {
+  const { byNo, activeNo, revealed, openNo, view, reveal, twoScores } = ctx;
+  const m = byNo[no];
+  const isR32 = levelOf(no) === 1;
+  const active = no === activeNo;
+  const played = !!(m && m.played); // real result entered via update_ko.py
+  const rvl = revealed.has(no);     // clicked to reveal
+  const isPredicted = view === "predicted";
+  const feeders = FEEDERS[no];
+  // In Real view a slot only fills from a genuinely PLAYED feeder; in Predicted
+  // view it also fills from a run (active) or a tap (revealed).
+  const dec = (x: number) =>
+    isPredicted ? (x === activeNo || revealed.has(x) || !!byNo[x]?.played) : !!byNo[x]?.played;
+  const baseShown = isR32 || played || (isPredicted && (active || rvl));
+  const homeReady = baseShown || (!!feeders && dec(feeders[0]));
+  const awayReady = baseShown || (!!feeders && dec(feeders[1]));
+  const teamsShown = homeReady || awayReady;
+  if (!m || !teamsShown) {
+    return (
+      <div
+        className="tie empty"
+        role={m ? "button" : undefined}
+        tabIndex={m ? 0 : undefined}
+        onClick={(e) => { e.stopPropagation(); if (m) reveal(no); }}
+        onKeyDown={(e) => { if (m && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); reveal(no); } }}
+      >
+        <div className="tline"><span className="tname q">—</span></div>
+        <div className="tline"><span className="tname q">—</span></div>
+      </div>
+    );
+  }
+  const open = openNo === no;
+  // Real view ONLY shows genuinely played results — never the model's prediction.
+  // Predicted view reveals the model's call on run (active) / tap (rvl) / played.
+  const useReal = played && !isPredicted && !!m.realScore;
+  const decided = isPredicted ? (active || played || rvl) : useReal;
+  const sc = useReal ? (m.realScore as string) : m.score;
+  const wn = useReal ? (m.realWinner as string) : m.winner;
+  const [gh = "", ga = ""] = sc.split("-");
+  const pens = decided && gh === ga && gh !== "";
+  const homeWin = wn === m.home;
+  // Unplayed predicted winners get a subtle green. Once a match is PLAYED, its
+  // winner is deep green if the model called it right, red if wrong — in BOTH views.
+  const modelRight = m.realWinner === m.winner;
+  const winCls = (isWinner: boolean) => {
+    if (!decided) return "";
+    if (!isWinner) return "lose";
+    if (played) return modelRight ? "win correct" : "win wrong";
+    return "win";
+  };
+  return (
+    <div
+      className={`tie ${decided ? "done" : ""} ${active ? "active" : ""} ${useReal ? "real" : ""} ${open ? "open" : ""}`}
+      role="button"
+      tabIndex={0}
+      onClick={(e) => { e.stopPropagation(); reveal(no); }}
+      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); reveal(no); } }}
+    >
+      <div className={`tline ${winCls(homeWin)}`}>
+        {homeReady
+          ? <span className="tname"><Flag name={m.home} size={15} /> {m.home}</span>
+          : <span className="tname q">—</span>}
+        {decided && <span className="tgoal">{gh}{pens && homeWin ? <i className="pk">P</i> : null}</span>}
+      </div>
+      <div className={`tline ${winCls(!homeWin)}`}>
+        {awayReady
+          ? <span className="tname"><Flag name={m.away} size={15} /> {m.away}</span>
+          : <span className="tname q">—</span>}
+        {decided && <span className="tgoal">{ga}{pens && !homeWin ? <i className="pk">P</i> : null}</span>}
+      </div>
+      {open && decided && (
+        <div className="why-bubble">
+          <div className="wb-line">Predicted <b>{twoScores(m)}</b></div>
+          <div className="wb-why">{m.why}</div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Col({ nos, label, ctx }: { nos: number[]; label: string; ctx: SlotCtx }) {
+  return (
+    <div className="bcol">
+      <div className="bcol-head">{label}</div>
+      <div className="bcol-body">{nos.map((n) => <Slot key={n} no={n} ctx={ctx} />)}</div>
+    </div>
+  );
+}
+
 export default function Bracket({
   rows,
   champion,
@@ -121,95 +223,7 @@ export default function Bracket({
 
   if (!rows.length) return null;
 
-  function Slot({ no }: { no: number }) {
-    const m = byNo[no];
-    const isR32 = levelOf(no) === 1;
-    const active = no === activeNo;
-    const played = !!(m && m.played); // real result entered via update_ko.py
-    const rvl = revealed.has(no);     // clicked to reveal
-    // Reveal PER SIDE: each slot of a later-round tie fills only when ITS feeder
-    // is decided (so clicking match 81 advances only USA into the R16 — the other
-    // slot stays "—" until match 82 is decided).
-    const isPredicted = view === "predicted";
-    const feeders = FEEDERS[no];
-    // In Real view a slot only fills from a genuinely PLAYED feeder; in Predicted
-    // view it also fills from a run (active) or a tap (revealed).
-    const dec = (x: number) =>
-      isPredicted ? (x === activeNo || revealed.has(x) || !!byNo[x]?.played) : !!byNo[x]?.played;
-    const baseShown = isR32 || played || (isPredicted && (active || rvl));
-    const homeReady = baseShown || (!!feeders && dec(feeders[0]));
-    const awayReady = baseShown || (!!feeders && dec(feeders[1]));
-    const teamsShown = homeReady || awayReady;
-    if (!m || !teamsShown) {
-      return (
-        <div
-          className="tie empty"
-          role={m ? "button" : undefined}
-          tabIndex={m ? 0 : undefined}
-          onClick={(e) => { e.stopPropagation(); if (m) reveal(no); }}
-          onKeyDown={(e) => { if (m && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); reveal(no); } }}
-        >
-          <div className="tline"><span className="tname q">—</span></div>
-          <div className="tline"><span className="tname q">—</span></div>
-        </div>
-      );
-    }
-    const open = openNo === no;
-    // Real view ONLY shows genuinely played results — never the model's prediction.
-    // Predicted view reveals the model's call on run (active) / tap (rvl) / played.
-    const useReal = played && !isPredicted && !!m.realScore;
-    const decided = isPredicted ? (active || played || rvl) : useReal;
-    const sc = useReal ? (m.realScore as string) : m.score;
-    const wn = useReal ? (m.realWinner as string) : m.winner;
-    const [gh, ga] = sc.split("-");
-    const pens = decided && gh === ga && gh !== "";
-    const homeWin = wn === m.home;
-    // Unplayed predicted winners get a subtle green. Once a match is PLAYED, its
-    // winner is deep green if the model called it right, red if wrong — in BOTH
-    // the Predicted and Real views.
-    const modelRight = m.realWinner === m.winner;
-    const winCls = (isWinner: boolean) => {
-      if (!decided) return "";
-      if (!isWinner) return "lose";
-      if (played) return modelRight ? "win correct" : "win wrong";
-      return "win";
-    };
-    return (
-      <div
-        className={`tie ${decided ? "done" : ""} ${active ? "active" : ""} ${useReal ? "real" : ""} ${open ? "open" : ""}`}
-        role="button"
-        tabIndex={0}
-        onClick={(e) => { e.stopPropagation(); reveal(no); }}
-        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); reveal(no); } }}
-      >
-        <div className={`tline ${winCls(homeWin)}`}>
-          {homeReady
-            ? <span className="tname"><Flag name={m.home} size={15} /> {m.home}</span>
-            : <span className="tname q">—</span>}
-          {decided && <span className="tgoal">{gh}{pens && homeWin ? <i className="pk">P</i> : null}</span>}
-        </div>
-        <div className={`tline ${winCls(!homeWin)}`}>
-          {awayReady
-            ? <span className="tname"><Flag name={m.away} size={15} /> {m.away}</span>
-            : <span className="tname q">—</span>}
-          {decided && <span className="tgoal">{ga}{pens && !homeWin ? <i className="pk">P</i> : null}</span>}
-        </div>
-        {open && decided && (
-          <div className="why-bubble">
-            <div className="wb-line">Predicted <b>{twoScores(m)}</b></div>
-            <div className="wb-why">{m.why}</div>
-          </div>
-        )}
-      </div>
-    );
-  }
-
-  const Col = ({ nos, label }: { nos: number[]; label: string }) => (
-    <div className="bcol">
-      <div className="bcol-head">{label}</div>
-      <div className="bcol-body">{nos.map((n) => <Slot key={n} no={n} />)}</div>
-    </div>
-  );
+  const ctx: SlotCtx = { byNo, activeNo, revealed, openNo, view, reveal, twoScores };
 
   return (
     <section className="card board" onClick={() => { setOpenNo(null); setMsg(""); }}>
@@ -223,20 +237,20 @@ export default function Bracket({
         </div>
       </div>
       <div className="bracket">
-        <Col nos={LEFT.r32} label="Round of 32" />
-        <Col nos={LEFT.r16} label="Round of 16" />
-        <Col nos={LEFT.qf} label="Quarters" />
-        <Col nos={LEFT.sf} label="Semis" />
+        <Col nos={LEFT.r32} label="Round of 32" ctx={ctx} />
+        <Col nos={LEFT.r16} label="Round of 16" ctx={ctx} />
+        <Col nos={LEFT.qf} label="Quarters" ctx={ctx} />
+        <Col nos={LEFT.sf} label="Semis" ctx={ctx} />
 
         <div className="bcol bcol-final">
           <div className="bcol-head">Final</div>
-          <div className="bcol-body"><Slot no={104} /></div>
+          <div className="bcol-body"><Slot no={104} ctx={ctx} /></div>
         </div>
 
-        <Col nos={RIGHT.sf} label="Semis" />
-        <Col nos={RIGHT.qf} label="Quarters" />
-        <Col nos={RIGHT.r16} label="Round of 16" />
-        <Col nos={RIGHT.r32} label="Round of 32" />
+        <Col nos={RIGHT.sf} label="Semis" ctx={ctx} />
+        <Col nos={RIGHT.qf} label="Quarters" ctx={ctx} />
+        <Col nos={RIGHT.r16} label="Round of 16" ctx={ctx} />
+        <Col nos={RIGHT.r32} label="Round of 32" ctx={ctx} />
       </div>
 
       <div className="champ-banner">

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://daudibrahimhasan.github.io/triONDA/sitemap.xml

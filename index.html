@@ -4,8 +4,49 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/png" href="./logo.png" />
-    <title>TRIONDA · World Cup 2026 ML Predictor</title>
-    <meta name="description" content="TRIONDA — a free, open machine-learning model that predicts the 2026 World Cup: winner, scoreline and goalscorers. Blind and point-in-time." />
+    <!-- Preload the data the app fetches, so it downloads in parallel with the JS (faster LCP) -->
+    <link rel="preload" href="./data.json" as="fetch" fetchpriority="high" />
+
+    <!-- Primary SEO -->
+    <title>TRIONDA · World Cup 2026 ML Predictor — Winner, Score & Goalscorers</title>
+    <meta name="description" content="TRIONDA is a free, open machine-learning model that predicts every 2026 World Cup match — winner, scoreline and goalscorers — validated blind on past tournaments. No paid data, no betting odds." />
+    <meta name="keywords" content="World Cup 2026, World Cup 2026 predictions, FIFA 2026 predictor, football match predictor, machine learning football, scoreline prediction, goalscorer prediction, knockout bracket predictor, TRIONDA" />
+    <meta name="author" content="Daud Ibrahim Hasan" />
+    <meta name="google-site-verification" content="xEh8V343I2YescG6HjH6BZzbaT1nX3w8I-LOZWwNkrw" />
+    <meta name="robots" content="index, follow" />
+    <meta name="theme-color" content="#123524" />
+    <link rel="canonical" href="https://daudibrahimhasan.github.io/triONDA/" />
+
+    <!-- Open Graph (Facebook, WhatsApp, LinkedIn, Discord link previews) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="TRIONDA" />
+    <meta property="og:title" content="TRIONDA · World Cup 2026 ML Predictor" />
+    <meta property="og:description" content="A free, open machine-learning model that predicts every 2026 World Cup match — winner, scoreline and goalscorers. Validated blind." />
+    <meta property="og:url" content="https://daudibrahimhasan.github.io/triONDA/" />
+    <meta property="og:image" content="https://daudibrahimhasan.github.io/triONDA/logo.png" />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- Twitter / X card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="TRIONDA · World Cup 2026 ML Predictor" />
+    <meta name="twitter:description" content="A free, open ML model that predicts every 2026 World Cup match — winner, scoreline and goalscorers. Validated blind." />
+    <meta name="twitter:image" content="https://daudibrahimhasan.github.io/triONDA/logo.png" />
+
+    <!-- Structured data -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "TRIONDA",
+        "applicationCategory": "SportsApplication",
+        "operatingSystem": "Web",
+        "url": "https://daudibrahimhasan.github.io/triONDA/",
+        "description": "A free, open machine-learning model that predicts every 2026 World Cup match — winner, scoreline and goalscorers — validated blind on past tournaments.",
+        "author": { "@type": "Person", "name": "Daud Ibrahim Hasan" },
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+      }
+    </script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -15,6 +56,33 @@
   </head>
   <body>
     <div id="root"></div>
+
+    <!-- SEO fallback for non-JS crawlers and link scrapers (the app is client-rendered) -->
+    <noscript>
+      <main style="max-width: 720px; margin: 0 auto; padding: 2rem 1.25rem; font-family: Inter, system-ui, -apple-system, sans-serif; line-height: 1.6; color: #123524;">
+        <h1>TRIONDA — World Cup 2026 Machine-Learning Match Predictor</h1>
+        <p>
+          TRIONDA is a free, open machine-learning system that predicts the winner,
+          scoreline and goalscorers of every 2026 FIFA World Cup match. It is validated
+          blind against tournaments it never trained on. No paid data, no betting odds.
+        </p>
+        <h2>How it works</h2>
+        <p>
+          Each match becomes 140+ point-in-time features (form, squad quality, style,
+          head-to-head, situational context). A panel of specialist sub-models is blended
+          by a meta-learner, then adjusted for rivalry and host-city support. Every
+          prediction ships with an honest confidence score and a chaos coefficient.
+        </p>
+        <h2>Tested blind</h2>
+        <ul>
+          <li>World Cup 2026 group stage — 61.1%</li>
+          <li>World Cup 2018 (blind) — 60.4%</li>
+          <li>551 held-out tournament matches — 58.4%</li>
+          <li>Knockout advancement — 77.4%</li>
+        </ul>
+      </main>
+    </noscript>
+
     <script type="module" src="/src/main.tsx"></script>
 
     <!-- Cloudflare Web Analytics (privacy-first, no cookies) -->
