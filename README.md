@@ -2,7 +2,7 @@
 
 <img src="./docs/trionda.png" alt="TRIONDA" width="420" />
 
-# TRIONDA
+# triONDA
 
 ### Machine-Learning Match Predictor for the 2026 FIFA World Cup
 
