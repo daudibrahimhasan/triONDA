@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type RefObject } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const reduceMotion = () =>
   typeof window !== "undefined" &&
@@ -28,7 +28,7 @@ export function useCountUp(target: number, duration = 1300): number {
 }
 
 /** Adds `.in` once the element scrolls into view (one-shot). */
-export function useReveal<T extends HTMLElement = HTMLDivElement>(): { ref: RefObject<T | null>; shown: boolean } {
+export function useReveal<T extends HTMLElement = HTMLDivElement>() {
   const ref = useRef<T | null>(null);
   const [shown, setShown] = useState(false);
   useEffect(() => {
