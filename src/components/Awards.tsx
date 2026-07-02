@@ -69,8 +69,7 @@ export default function Awards({ sims }: { sims?: Sim[] }) {
         {champ && (
           <div className="awards-champ">
             <span className="awards-champ-cap">🏆 Projected champion</span>
-            <span className="awards-champ-team"><Flag name={champ.team} size={26} /> {champ.team}</span>
-            <span className="awards-champ-sub">most frequent winner across the model's simulations</span>
+            <span className="awards-champ-team">Wait till the Semis are over</span>
           </div>
         )}
 
